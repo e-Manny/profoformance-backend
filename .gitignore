@@ -38,9 +38,8 @@ Thumbs.db
 
 #secrets
 ######################
-*.env
+.env
 
 #venv
 ######################
-*.venv
-.venv
+.venv/
