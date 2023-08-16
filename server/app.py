@@ -3,7 +3,7 @@ from flask_bcrypt import Bcrypt
 from flask_cors import CORS
 from flask_session import Session
 from config import ApplicationConfig
-from models import db, User
+from models import db, User, Property
 
 app = Flask(__name__)
 app.config.from_object(ApplicationConfig)
@@ -72,6 +72,43 @@ def logout_user():
         return jsonify({"message": "Logged out successfully"}), 200
     else:
         return jsonify({"error": "Not logged in"}), 401
+
+@app.route("/addproperty", methods=["POST"])
+def add_property():
+  userID = session.get("user_id")
+  propertyName = request.json["propertyName"]
+  yearBuilt = request.json["yearBuilt"]
+  address = request.json["address"]
+  city = request.json["city"]
+  zipCode = request.json["zipCode"]
+  state = request.json["state"]
+  purchasePrice = request.json["purchasePrice"]
+  purchaseClosingCosts = request.json["purchaseClosingCosts"]
+  renovationCosts = request.json["renovationCosts"]
+  valueGrowthRate = request.json["valueGrowthRate"]
+  anualRentalIncome = request.json["anualRentalIncome"]
+  rentGrowthRate = request.json["rentGrowthRate"]
+  capEx = request.json["capEx"]
+  capExGrowthRate = request.json["capExGrowthRate"]
+  propertyTax = request.json["propertyTax"]
+  insurance = request.json["insurance"]
+  maintenance = request.json["maintenance"]
+  propertyManagement = request.json["propertyManagement"]
+  otherExpense = request.json["otherExpense"]
+  expenseGrowth = request.json["expenseGrowth"]
+  loanAmount = request.json["loanAmount"]
+  interestRate = request.json["interestRate"]
+  amortizationYears = request.json["amortizationYears"]
+  holdingPeriod = request.json["holdingPeriod"]
+  saleClosingCosts = request.json["saleClosingCosts"]
+
+  new_property = Property(userID = userID, propertyName = propertyName, yearBuilt = yearBuilt, address = address, city = city, zipCode = zipCode, state = state, purchasePrice = purchasePrice, purchaseClosingCosts = purchaseClosingCosts, renovationCosts = renovationCosts, valueGrowthRate = valueGrowthRate, anualRentalIncome = anualRentalIncome, rentGrowthRate = rentGrowthRate, capEx = capEx, capExGrowthRate = capExGrowthRate, loanAmount = loanAmount, interestRate = interestRate, amortizationYears = amortizationYears, holdingPeriod = holdingPeriod, saleClosingCosts = saleClosingCosts, propertyTax = propertyTax, insurance = insurance, maintenance = maintenance, propertyManagement = propertyManagement, otherExpense = otherExpense, expenseGrowth = expenseGrowth)
+
+  db.session.add(new_property)
+  db.session.commit()
+  return jsonify({
+     "id": new_property.id
+  })
 
 if __name__ == "__main__":
     app.run(debug=True)
