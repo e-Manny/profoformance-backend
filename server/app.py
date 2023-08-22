@@ -150,7 +150,7 @@ def edit_property():
     if not user_id:
         return jsonify({"error": "Unauthorized"}), 401
 
-    property_id = request.json.get("propertyID")
+    property_id = request.json.get("id")
     if not property_id:
         print("Missing propertyID")
         return jsonify({"error": "Missing propertyID"}), 400
@@ -159,7 +159,7 @@ def edit_property():
     if prop is None:
         return jsonify({"error": "Property not found"}), 404
 
-    property_data = {
+    propertyData = {
         "propertyName": prop.propertyName,
         "yearBuilt": prop.yearBuilt,
         "address": prop.address,
@@ -187,7 +187,7 @@ def edit_property():
         "saleClosingCosts": prop.saleClosingCosts,
     }
 
-    return jsonify(property_data)
+    return jsonify({"propertyData":propertyData})
 
 @app.route("/property", methods=["POST"])
 def get_property_cashflow():
