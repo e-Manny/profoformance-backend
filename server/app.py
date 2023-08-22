@@ -4,12 +4,13 @@ from flask_cors import CORS
 from flask_session import Session
 from config import ApplicationConfig
 from models import db, User, Property
+from cashflow import cashflow
 
 app = Flask(__name__)
 app.config.from_object(ApplicationConfig)
 
 bcrypt = Bcrypt(app)
-CORS(app, supports_credentials=True)
+CORS(app, resources={r"/*": {"origins": "http://127.0.0.1:5173"}}, supports_credentials=True)
 server_session = Session(app)
 db.init_app(app)
 
@@ -24,10 +25,17 @@ def get_current_user():
     return jsonify({"error":"Unauthorized"}), 401
   
   user = User.query.filter_by(id=user_id).first()
+  properties = Property.query.filter_by(userID=user_id)
+  propertyNames = []
+  propertyIDs = []
+  for property in properties:
+     propertyNames.append(property.propertyName)
+     propertyIDs.append(property.id)
 
   return jsonify({
      "id": user.id,
-     "email": user.email
+     "propertyNames": propertyNames,
+     "propertyIDs": propertyIDs
   })
 
 @app.route("/register", methods=["POST"])
@@ -75,6 +83,10 @@ def logout_user():
 
 @app.route("/addproperty", methods=["POST"])
 def add_property():
+  user_id = session.get("user_id")
+
+  if not user_id:
+    return jsonify({"error":"Unauthorized"}), 401
   userID = session.get("user_id")
   propertyName = request.json["propertyName"]
   yearBuilt = request.json["yearBuilt"]
@@ -108,6 +120,40 @@ def add_property():
   db.session.commit()
   return jsonify({
      "id": new_property.id
+  })
+
+@app.route("/property", methods=["POST"])
+def get_property_cashflow():
+  user_id = session.get("user_id")
+
+  if not user_id:
+    return jsonify({"error":"Unauthorized"}), 401
+
+  prop = Property.query.filter_by(id=request.json["id"]).first()
+  propertyName = prop.propertyName
+  purchasePrice = prop.purchasePrice
+  purchaseClosingCosts = prop.purchaseClosingCosts
+  renovationCosts = prop.renovationCosts
+  valueGrowthRate = prop.valueGrowthRate
+  anualRentalIncome = prop.anualRentalIncome
+  rentGrowthRate = prop.rentGrowthRate
+  propertyTax = prop.propertyTax
+  insurance = prop.insurance
+  maintenance = prop.maintenance
+  propertyManagement = prop.propertyManagement
+  otherExpense = prop.otherExpense
+  expenseGrowth = prop.expenseGrowth
+  capEx = prop.capEx
+  capExGrowthRate = prop.capExGrowthRate
+  loanAmount = prop.loanAmount
+  interestRate = prop.interestRate
+  amortizationYears = prop.amortizationYears
+  holdingPeriod = prop.holdingPeriod
+  saleClosingCosts = prop.saleClosingCosts
+  propertyCashFlow = cashflow(propertyName, purchasePrice, purchaseClosingCosts, renovationCosts, valueGrowthRate, anualRentalIncome, rentGrowthRate, propertyTax, insurance, maintenance, propertyManagement, otherExpense, expenseGrowth, capEx, capExGrowthRate, loanAmount, interestRate, amortizationYears, holdingPeriod, saleClosingCosts)
+  return jsonify({
+     "cashflow": propertyCashFlow
+    #  "cashflow": propertyCashFlow
   })
 
 if __name__ == "__main__":

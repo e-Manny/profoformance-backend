@@ -59,7 +59,7 @@ def cashflow(propertyName, purchasePrice, purchaseClosingCosts, renovations, val
   return responseDict
 
 # print(npf.ipmt((4/100)/12, 60, 30 * 12, 3000000))
-# print(cashflow("123 Main St", 5000000, 50000, 0, 0, 300000, 4, 0, 0, 0, 0, 0, 0, 5000, 3, 3000000, 4, 30, 60, 140383))
+print(cashflow("123 Main St", 5000000, 50000, 0, 0, 300000, 4, 0, 0, 0, 0, 0, 0, 5000, 3, 3000000, 4, 30, 60, 140383))
 # print(cashflow(propertyName, purchasePrice, purchaseClosingCosts, renovations, 
 # valueGrowthRate, rent, rentGrowthRate, propertyTax, insurance, maintenance, propertyMgmt, 
 # otherOpEx, opExGrowthRate, capEx, capExGrowthRate, loanAmount, interestRate, amortization, holdingPeriod, saleClosingCosts))
