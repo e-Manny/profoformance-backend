@@ -10,7 +10,8 @@ app = Flask(__name__)
 app.config.from_object(ApplicationConfig)
 
 bcrypt = Bcrypt(app)
-CORS(app, resources={r"/*": {"origins": "http://127.0.0.1:5173"}}, supports_credentials=True)
+# CORS(app, resources={r"/*": {"origins": "http://127.0.0.1:5173"}}, supports_credentials=True)
+CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 server_session = Session(app)
 db.init_app(app)
 
@@ -121,6 +122,72 @@ def add_property():
   return jsonify({
      "id": new_property.id
   })
+
+@app.route("/deleteproperty", methods=["POST"])
+def delete_property():
+    user_id = session.get("user_id")
+
+    if not user_id:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    property_id = request.json["id"]
+    
+    property_to_delete = Property.query.get(property_id)
+    if property_to_delete is None:
+        return jsonify({"error": "Property not found"}), 404
+    
+    db.session.delete(property_to_delete)
+    db.session.commit()
+
+    return jsonify({
+        "message": "Property deleted successfully"
+    }), 200
+
+@app.route("/editproperty", methods=["POST"])
+def edit_property():
+    user_id = session.get("user_id")
+
+    if not user_id:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    property_id = request.json.get("propertyID")
+    if not property_id:
+        print("Missing propertyID")
+        return jsonify({"error": "Missing propertyID"}), 400
+
+    prop = Property.query.filter_by(id=property_id).first()
+    if prop is None:
+        return jsonify({"error": "Property not found"}), 404
+
+    property_data = {
+        "propertyName": prop.propertyName,
+        "yearBuilt": prop.yearBuilt,
+        "address": prop.address,
+        "city": prop.city,
+        "zipCode": prop.zipCode,
+        "state": prop.state,
+        "purchasePrice": prop.purchasePrice,
+        "purchaseClosingCosts": prop.purchaseClosingCosts,
+        "renovationCosts": prop.renovationCosts,
+        "valueGrowthRate": prop.valueGrowthRate,
+        "anualRentalIncome": prop.anualRentalIncome,
+        "rentGrowthRate": prop.rentGrowthRate,
+        "capEx": prop.capEx,
+        "capExGrowthRate": prop.capExGrowthRate,
+        "propertyTax": prop.propertyTax,
+        "insurance": prop.insurance,
+        "maintenance": prop.maintenance,
+        "propertyManagement": prop.propertyManagement,
+        "otherExpense": prop.otherExpense,
+        "expenseGrowth": prop.expenseGrowth,
+        "loanAmount": prop.loanAmount,
+        "interestRate": prop.interestRate,
+        "amortizationYears": prop.amortizationYears,
+        "holdingPeriod": prop.holdingPeriod,
+        "saleClosingCosts": prop.saleClosingCosts,
+    }
+
+    return jsonify(property_data)
 
 @app.route("/property", methods=["POST"])
 def get_property_cashflow():
